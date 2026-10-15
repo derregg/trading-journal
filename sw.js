@@ -1,28 +1,27 @@
+const CACHE_NAME = "trading-journal-v2";
 
-const CACHE_NAME = "trading-journal-v1";
-const APP_FILES = [
+const APP_ASSETS = [
   "./",
   "./index.html",
-  "./manifest.json"
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
-self.addEventListener("install", (event) => {
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(APP_FILES);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_ASSETS))
   );
-
   self.skipWaiting();
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
+    caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter((key) => key.startsWith("trading-journal-") && key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
       )
     )
   );
@@ -30,22 +29,12 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
+self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
-    fetch(event.request).catch(async () => {
-      const cached = await caches.match(event.request);
-      if (cached) return cached;
-
-      if (event.request.mode === "navigate") {
-        return caches.match("./index.html");
-      }
-
-      return new Response("Offline: Please reconnect to the internet.", {
-        status: 503,
-        headers: { "Content-Type": "text/plain; charset=utf-8" }
-      });
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request);
     })
   );
 });
