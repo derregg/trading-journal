@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trading Journal — Foundation</title><style>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trading Journal — Foundation</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#111827"><style>
 :root{--bg:#f4f7fb;--ink:#101828;--muted:#667085;--line:#e6eaf0;--card:#fff;--accent:#111827;--soft:#f8fafc;--green:#12b76a;--red:#f04438}
 *{box-sizing:border-box}html,body{width:100%;min-height:100%;overflow-x:hidden}body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--ink)}
 header{background:linear-gradient(135deg,#0b1220,#182235);color:#fff;padding:22px 18px;box-shadow:0 8px 28px rgba(16,24,40,.12)}header b{font-size:20px;letter-spacing:.2px}main{width:100%;max-width:1080px;margin:0 auto;padding:16px}
@@ -13,4 +13,14 @@ function stats(a){let w=a.filter(x=>x.result==='Win'),l=a.filter(x=>x.result==='
 function toggleAllRR(v){document.querySelectorAll('.rrResult').forEach(x=>x.value=v?'Win':'')}
 function addTrade(){if(!$('date').value||!$('pair').value.trim()){alert('Please enter Date and Pair.');return}let results={};document.querySelectorAll('.rrResult').forEach(x=>{if(x.value)results[x.dataset.rr]=x.value});if(!Object.keys(results).length){alert('Please select Win, Loss or BE for at least one R:R.');return}db.trades.push({id:Date.now(),date:$('date').value,pair:$('pair').value.trim().toUpperCase(),session:$('session').value,setup:$('setup').value.trim(),direction:$('direction').value,rrResults:results,asian:$('asian').value==='Yes',lesson:$('lesson').value.trim()});save();location.reload()}
 function toggleRule(i,v){db.coreRules[i]=v;save()}function render(){let s=stats(db.trades);if($('entrySetup'))$('entrySetup').value=db.entrySetup||'';for(let i=0;i<4;i++){let el=$('coreRule'+i);if(el)el.checked=!!db.coreRules[i]}$('trades').textContent=s.t;$('recent').innerHTML=db.trades.slice().reverse().slice(0,10).map(x=>{let rs=rrRows(x);let labels=Object.entries(rs).map(([rr,res])=>rr+' '+res).join(', ');return `<tr><td>${x.date}</td><td>${x.pair}</td><td>${x.setup}</td><td>${x.direction}</td><td>${labels}</td><td>${Object.keys(rs).length} R:R</td><td>—</td></tr>`}).join('')||'<tr><td colspan="7">No trades yet.</td></tr>';let h='';for(let rr of ['1:1','1:2','1:3','1:4','1:5']){let rows=[];db.trades.forEach(t=>{let rs=rrRows(t);if(rs[rr])rows.push({result:rs[rr],r:calcR(rr,rs[rr])})});let x=stats(rows);h+=`<tr><td class="rr-name">${rr}</td><td>${x.t}</td><td class="rr-win">${x.w}</td><td class="rr-loss">${x.l}</td><td><b>${x.wr.toFixed(1)}%</b><div class="rr-bar"><div class="rr-fill" style="width:${Math.min(100,x.wr)}%"></div></div></td><td class="${x.r>=0?'rr-win':x.r<0?'rr-loss':''}">${x.r>=0?'+':''}${x.r.toFixed(1)}R</td></tr>`}$('rrtableDash').innerHTML=h;let a=stats(db.trades.filter(t=>t.asian)),n=stats(db.trades.filter(t=>!t.asian));$('asianYesTrades').textContent=a.t;$('asianYesWR').textContent=a.wr.toFixed(1)+'%';$('asianYesR').textContent=(a.r>=0?'+':'')+a.r.toFixed(1)+'R';$('asianYesBar').style.width=Math.min(100,a.wr)+'%';$('asianNoTrades').textContent=n.t;$('asianNoWR').textContent=n.wr.toFixed(1)+'%';$('asianNoR').textContent=(n.r>=0?'+':'')+n.r.toFixed(1)+'R';$('asianNoBar').style.width=Math.min(100,n.wr)+'%';$('asaintable').innerHTML=`<tr><td>Asian Liquidity: YES</td><td>${a.t}</td><td>${a.w}</td><td>${a.l}</td><td>${a.wr.toFixed(1)}%</td><td>${a.r>=0?'+':''}${a.r.toFixed(1)}R</td></tr><tr><td>Asian Liquidity: NO</td><td>${n.t}</td><td>${n.w}</td><td>${n.l}</td><td>${n.wr.toFixed(1)}%</td><td>${n.r>=0?'+':''}${n.r.toFixed(1)}R</td></tr>`}
-render();</script></body></html>
+render();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(() => console.log("Service Worker registered"))
+      .catch(err => console.log("Service Worker registration failed:", err));
+  });
+}
+
+</script></body></html>
