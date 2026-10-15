@@ -1,0 +1,24 @@
+{
+  "id": "/trading-journal/",
+  "name": "Trading Journal",
+  "short_name": "Trading Journal",
+  "description": "Personal Forex Trading Journal",
+  "start_url": "/trading-journal/",
+  "scope": "/trading-journal/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#111827",
+  "background_color": "#111827",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
